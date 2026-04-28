@@ -1,0 +1,8 @@
+program : hello.o goodbye.o
+	gcc -o program hello.o goodbye.o
+
+hello.o : hello.c
+	gcc -c hello.c
+
+goodbye.o : goodbye.c
+	gcc -c goodbye.c
