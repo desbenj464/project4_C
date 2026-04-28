@@ -1,0 +1,17 @@
+litany1 : bene_gesserit
+	echo I must not fear > first.txt
+	@ echo Fear is the mind killer > second.txt
+	@ echo Fear is the little-death that brings total obliteration.
+
+counting : arakis.dat shields.dat
+	wc -l < notes_on_sandworms.txt
+	wc -l < notes_on_sandworms.txt > counts.txt
+	sed s/slow/sloooow/g < shield_training.txt > for_paul.txt
+	sed s/slow/sloooow/g > for_paul.txt < shield_training.txt
+	@ sed s/slow/sloooow/g < shield_training.txt > for_paul.txt
+
+litany2 :
+	@ echo I will face my fear.
+	@ echo I will permit it to pass over me and through me.
+	@ echo And when it has gone past, I will turn the inner eye to see its path.
+	@ echo Where the fear has gone there will be nothing. Only I will remain.
