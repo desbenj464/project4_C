@@ -1,0 +1,12 @@
+# cycle of A->B->C->D->B
+fileA.txt : fileB.txt
+	@ echo completed fileA.txt
+
+fileB.txt : fileC.txt
+	@ echo completed fileB.txt
+
+fileC.txt : fileD.txt
+	@ echo completed fileC.txt
+
+fileD.txt : fileB.txt
+	@ echo completed fileD.txt
