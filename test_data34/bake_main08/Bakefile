@@ -1,0 +1,32 @@
+all : out_check outin_check sil_check mul_check
+
+
+out_check :
+	echo Whats in the box? > pain.txt
+	cat pain.txt
+
+outin_check :
+	seq 1 300 > numbers.txt
+	wc < numbers.txt
+
+sil_check :
+	@ echo Dreams make good stories, but everything important happens when we are awake
+
+mul_check :
+	ls
+	echo Running silent commands with output redirection
+	@ echo I must not fear. > 1.txt
+	@ echo Fear is the mind-killer. > 2.txt
+	@ echo Fear is the little-death that brings total obliteration. > 3.txt
+	@ echo I will face my fear. > 4.txt
+	@ echo I will permit it to pass over me and through me. > 5.txt
+	@ echo And when it has gone past I will turn the inner eye to see its path. > 6.txt
+	@ echo Where the fear has gone there will be nothing. > 7.txt
+	@ echo Only I will remain. > 8.txt
+	@ cat 1.txt 2.txt 3.txt 4.txt 5.txt 6.txt 7.txt 8.txt > fear.txt
+	@ wc < fear.txt > count.txt
+	echo Done with silent commands, showing results
+	ls -1
+	cat fear.txt
+	cat count.txt
+
