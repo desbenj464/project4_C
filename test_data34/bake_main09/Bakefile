@@ -1,0 +1,39 @@
+# this file has intentional bugs in it for testing
+
+all : prog1 prog2
+
+
+prog1 : x.o y.o
+	@ echo Building prog1
+	gcc -o prog1 x.o y.o
+	@ echo prog1 Ready
+
+# Create a missing rule
+# prog2 : x.o z.o
+# 	gcc -o prog2 x.o z.o
+
+x.o : x.c
+	gcc -c x.c
+
+y.o : y.c
+	gcc -c y.c
+
+z.o : z.c
+	gcc -c z.c
+
+prog3 : x.o z.o
+	echo Building prog3, errors ahead
+	wc x.c missing.c z.c 
+	gcc -o prog3 x.o z.o 
+	echo prog3 ready - WTF?
+
+prog4 : x.o error y.o
+	gcc -o prog4 x.o y.o
+
+error :
+	echo creating an error
+	wc -l no_such_file.txt
+	echo unreachable we hope
+
+clean :
+	rm -f x.o y.o z.o prog1 prog2
