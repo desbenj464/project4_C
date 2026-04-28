@@ -1,0 +1,21 @@
+# no cycles exist in this Bakefile
+all : prog1 prog2
+
+
+prog1 : x.o y.o
+	gcc -o prog1 x.o y.o
+
+prog2 : x.o z.o
+	gcc -o prog2 x.o z.o
+
+x.o : x.c
+	gcc -c x.c
+
+y.o : y.c
+	gcc -c y.c
+
+z.o : z.c
+	gcc -c z.c
+
+clean :
+	rm -f x.o y.o z.o prog1 prog2
