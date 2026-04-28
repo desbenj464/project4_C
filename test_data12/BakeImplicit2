@@ -1,0 +1,12 @@
+# used to tests implicit rule creation
+program1 : sourceA.c sourceB.c
+	command1
+	command2
+
+program2 : sourceA.c sourceC.c
+	command1
+
+program3 : sourceB.c sourceD.c sourceA.c
+	command1
+	command2
+	command3

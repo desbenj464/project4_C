@@ -1,0 +1,29 @@
+# this is a leading comment
+
+# this target uses the program that is built
+# and runs it printing messages around it
+demo : hello bye
+	@ echo Running programs
+	./hello
+	./bye
+	@ echo Done running programs
+
+all : hello bye
+
+# this is program 1 / 2
+hello : hello.o
+	gcc -o hello hello.o
+
+hello.o : hello.c
+	gcc -c hello.c
+
+# this is program 2 / 2
+bye : bye.o
+	gcc -o bye bye.o
+
+bye.o : bye.c
+	gcc -c bye.c
+
+# this target removes built files
+clean :
+	rm -f hello.o bye.o hello bye

@@ -1,0 +1,33 @@
+# used to tests implicit rule creation 
+# deeper implicit targets
+program1 : sourceA.c sourceB.c
+	command1
+	command2
+
+# sourceA.c is not implicit but
+# inputA.dat is
+sourceA.c : inputA.dat
+	command3
+
+# check that no implicit rules are
+# creatd when there are no deps
+program2 : 
+	command4
+	command5
+
+program3 : sourceC.c sourceD.c
+	command6
+	command7
+
+# sourceC. is NOT implicit
+sourceC.c :
+	command8
+
+# sourceD.c nests several deep
+sourceD.c : inputD.dat
+	command9
+
+# calcD.txt is the only implicit target
+inputD.dat : calcD.txt
+	command10
+
