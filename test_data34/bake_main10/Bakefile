@@ -1,0 +1,69 @@
+all : prog1 prog2
+
+outredir_fail :
+	mkdir -p a_directory
+	echo This should fail > a_directory
+	echo This should not happen
+
+inpredir_fail :
+	echo Next command fails
+	wc < no_such_file.txt
+	echo This should not happen
+
+prog1 : x.o y.o
+	@ echo Building prog1
+	gcc -o prog1 x.o y.o
+	@ echo prog1 Ready
+
+# Create a missing rule
+# prog2 : x.o z.o
+# 	gcc -o prog2 x.o z.o
+
+x.o : x.c
+	gcc -c x.c
+
+y.o : y.c
+	gcc -c y.c
+
+z.o : z.c
+	gcc -c z.c
+
+prog3 : x.o z.o
+	echo Building prog3, errors ahead
+	gcc -o prog3 x.o z.o missing.o
+	echo prog3 ready - WTF?
+
+prog4 : x.o error y.o
+	gcc -o prog4 x.o y.o
+
+error :
+	echo creating an error
+	wc -l no_such_file.txt
+	echo unreachable we hope
+
+clean :
+	rm -f x.o y.o z.o prog1 prog2
+
+deep : level1
+	@ echo Completed deep
+
+level1 : level2A level2B
+	@ echo Completed level1
+
+level2A : level3
+	@ echo completed level2A
+
+level2B : level3
+	@ echo completed level2B
+
+level3 : level4A level4B level4C
+	@ echo completed level3
+
+level4A : 
+	@ echo completed leve4A
+
+level4B : 
+	@ echo completed leve4B
+
+level4C : 
+	@ echo completed leve4C
