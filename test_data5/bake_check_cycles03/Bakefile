@@ -1,0 +1,26 @@
+# cycle NOT present on default target but starting at any of X->Y->Z->W
+# get a cycle
+
+fileA.txt : fileB.txt
+	@ echo completed fileA.txt
+
+fileB.txt : fileC.txt
+	@ echo completed fileB.txt
+
+fileC.txt : fileD.txt
+	@ echo completed fileC.txt
+
+# file D is implicit
+
+# cycle in below
+fileX.txt : fileY.txt
+	@ echo completed fileX.txt
+
+fileY.txt : fileZ.txt
+	@ echo completed fileY.txt
+
+fileZ.txt : fileW.txt
+	@ echo completed fileZ.txt
+
+fileW.txt : fileX.txt
+	@ echo completed fileW.txt
