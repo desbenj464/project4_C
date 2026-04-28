@@ -1,0 +1,52 @@
+                           _________________
+
+                            WORK DISCLOSURE
+                           _________________
+
+
+(A) HUMAN COLLABORATORS
+=======================
+
+  Aside from the person submitting this assignment, the following people
+  contributed ideas and discussion to the completion of this work
+  INCLUDING course staff members. Write NONE if no collaborators were
+  involved.
+  - Person 1 <person1@email.com> helped understand Problem X and the
+    meaning of...
+  - Person 2 <person2@email.com> helped debug Code for Problem Y...
+  - etc.
+
+
+(B) RESOURCE UTILIZATION
+========================
+
+  The following resources such as websites, course notes, artificial
+  intelligence tools (LLMs/ChatBots/etc.) were utilized in the
+  completion of this work. Include course materials such as textbooks
+  and lecture slides as well. (Write NONE if no resources were used
+  [which would be hard to believe]).
+  - Resource 1 is here <https://some.resource.org/useful_stuff.html> and
+    provided help for Problem Z to understand...
+  - Resource 2 is the book "C Code for Dummies" by Boo Kauthor with
+    chapter 8 helping a lot with the malloc()/free() usage on Problem W
+  - Resource 3 is here <https://airegurgitator.com> and provided AI
+    refinements for the algorithm used on problem Q and also helped
+    debug code for Problem N.
+  - etc.
+
+
+(C) ADHERENCE TO THE PRIME DIRECTIVE
+====================================
+
+  PRIME DIRECTIVE: Be able to explain your own work including assignment
+  answers, program code, and exam solutions. The work you submit should
+  be the product of your own effort and reflect your personal
+  understanding. (See the course syllabus for more information.)
+
+  I submit this work in accordance with the PRIME DIRECTIVE. I affirm
+  that I can explain the code and answers within as I created them and
+  they reflect my personal understanding.
+
+  Signed,
+
+  <REPLACE WITH SUBMITTER NAME>

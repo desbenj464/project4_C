@@ -1,0 +1,540 @@
+#+TITLE: Problem 1 Bake Service Functions Tests
+#+TESTY: PREFIX="prob1"
+#+TESTY: USE_VALGRIND=1
+# disable memory leak detection in forked children
+#+TESTY: VALGRIND_OPTS="--child-silent-after-fork=yes"
+
+# # Some tests rely on the sorting order of ls AND the absence of
+# # unicode characters in the output of certain commands; setting the
+# # language to C will force ASCII ordering and usually not output
+# # unicode quote characters
+# #+TESTY: env_var LANG C
+
+* slurp_file_efficient1
+#+TESTY: program="./test_bake_funcs12 slurp_file_efficient1"
+#+BEGIN_SRC sh
+IF_TEST("slurp_file_efficient1") { 
+    // Create a file then slurp it to show its contents are
+    // correct. Single line file with text.
+    system("echo 'Bake me a cake as quick as you can' > test-results/slurp1.txt");
+    char *file_bytes = slurp_file_efficient("test-results/slurp1.txt");
+    printf("file_bytes START\n%s\nfile_bytes STOP\n",file_bytes);
+    printf("%lu bytes total (not counting null termination)\n",strlen(file_bytes));
+    free(file_bytes);
+}
+---OUTPUT---
+file_bytes START
+Bake me a cake as quick as you can
+
+file_bytes STOP
+35 bytes total (not counting null termination)
+#+END_SRC
+
+* slurp_file_efficient2 
+#+TESTY: program="./test_bake_funcs12 slurp_file_efficient2"
+#+BEGIN_SRC sh
+IF_TEST("slurp_file_efficient2") { 
+    // Create a file then slurp it to show its contents are corect.
+    // Larger file with number data.
+    system("seq -w 100000000 1000000 200000000 > test-results/slurp2.txt");
+    char *file_bytes = slurp_file_efficient("test-results/slurp2.txt");
+    printf("file_bytes START\n%s\nfile_bytes STOP\n",file_bytes);
+    printf("%lu bytes total (not counting null termination)\n",strlen(file_bytes));
+    free(file_bytes);
+}
+---OUTPUT---
+file_bytes START
+100000000
+101000000
+102000000
+103000000
+104000000
+105000000
+106000000
+107000000
+108000000
+109000000
+110000000
+111000000
+112000000
+113000000
+114000000
+115000000
+116000000
+117000000
+118000000
+119000000
+120000000
+121000000
+122000000
+123000000
+124000000
+125000000
+126000000
+127000000
+128000000
+129000000
+130000000
+131000000
+132000000
+133000000
+134000000
+135000000
+136000000
+137000000
+138000000
+139000000
+140000000
+141000000
+142000000
+143000000
+144000000
+145000000
+146000000
+147000000
+148000000
+149000000
+150000000
+151000000
+152000000
+153000000
+154000000
+155000000
+156000000
+157000000
+158000000
+159000000
+160000000
+161000000
+162000000
+163000000
+164000000
+165000000
+166000000
+167000000
+168000000
+169000000
+170000000
+171000000
+172000000
+173000000
+174000000
+175000000
+176000000
+177000000
+178000000
+179000000
+180000000
+181000000
+182000000
+183000000
+184000000
+185000000
+186000000
+187000000
+188000000
+189000000
+190000000
+191000000
+192000000
+193000000
+194000000
+195000000
+196000000
+197000000
+198000000
+199000000
+200000000
+
+file_bytes STOP
+1010 bytes total (not counting null termination)
+#+END_SRC
+
+* slurp_file_efficient_empty 
+#+TESTY: program="./test_bake_funcs12 slurp_file_efficient_empty"
+#+BEGIN_SRC sh
+IF_TEST("slurp_file_efficient_empty") { 
+    // Check for correct handling of empty files.
+    system("touch test-results/slurp-empty.txt");
+    char *file_bytes = slurp_file_efficient("test-results/slurp-empty.txt");
+    printf("file_bytes START\n%s\nfile_bytes STOP\n",file_bytes);
+    printf("%lu bytes total (not counting null termination)\n",strlen(file_bytes));
+    free(file_bytes);
+}
+---OUTPUT---
+file_bytes START
+
+file_bytes STOP
+0 bytes total (not counting null termination)
+#+END_SRC
+
+* slurp_file_efficient_fail 
+#+TESTY: program="./test_bake_funcs12 slurp_file_efficient_fail"
+#+BEGIN_SRC sh
+IF_TEST("slurp_file_efficient_fail") { 
+    // Check that slurping correctly returns NULL when a file can't be
+    // opened. The function should use perror() to print the message
+    // "Couldn't open file" which will append a reason for it.
+    system("rm -f test-results/slurp-not-there.txt");
+    char *file_bytes = slurp_file_efficient("test-results/slurp-not-there.txt");
+    printf("file_bytes START\n%s\nfile_bytes STOP\n",file_bytes);
+    // free(file_bytes);   // should be NULL so no need to free
+}
+---OUTPUT---
+Couldn't open file: No such file or directory
+file_bytes START
+(null)
+file_bytes STOP
+#+END_SRC
+
+* bake_target_rule1 
+#+TESTY: program="./test_bake_funcs12 bake_target_rule1"
+#+BEGIN_SRC sh
+IF_TEST("bake_target_rule1") { 
+    // checks that the rule associated with an existing target is
+    // found in a small bake
+    rule_t rules[8] = {
+      { .target      = "target0",
+        .deps        = {"dep0A","dep0B","dep0C"},
+        .cmd_count   = 2,
+        .cmds        = {
+          { .tokens = {"a","b","c"} },
+          { .tokens = {"d","e"} },
+        }
+      },
+      { .target      = "target1",
+        .deps        = {"dep1A","dep1B"},
+        .cmd_count   = 3,
+        .cmds        = {
+          { .tokens = {"a","b","c"} },
+          { .tokens = {"d","e"} },
+          { .tokens = {"f","g","h"} },
+        }
+      },            
+      { .target      = "target2",
+        .deps        = {"dep2A","dep2B","dep2C","dep2D"},
+        .cmd_count   = 1,
+        .cmds        = {
+          { .tokens = {"a","b","c"} },
+        }
+      },            
+    };
+    bake_t bake = {
+      .filename      = "<none>",
+      .rule_capacity = 8,
+      .rule_count    = 3,
+      .rules         = rules,
+      .string_table  = NULL
+    };
+    rule_t *rule;
+
+    printf("FIRST LOOKUP\n");
+    rule = bake_target_rule(&bake, "target1");
+    if(rule == NULL){
+      printf("rule not found\n");
+    }
+    else{
+      bake_show_rule(rule,0);
+    }
+
+    printf("SECOND LOOKUP\n");
+    rule = bake_target_rule(&bake, "target2");
+    if(rule == NULL){
+      printf("rule not found\n");
+    }
+    else{
+      bake_show_rule(rule,0);
+    }
+}
+---OUTPUT---
+FIRST LOOKUP
+rule_t {
+  target = target1
+  deps[ 0] = 'dep1A'
+  deps[ 1] = 'dep1B'
+  deps[ 2] = (null)
+  rule_flags = 0x00 [ -- -- -- ]
+  cmd_count = 3
+  cmds[ 0] =
+    cmd_t {
+      tokens[ 0] = 'a'
+      tokens[ 1] = 'b'
+      tokens[ 2] = 'c'
+      tokens[ 3] = (null)
+      input_redirect = '(null)'
+      output_redirect = '(null)'
+      line_number = 0
+      cmd_flags = 0x00 [ -- -- -- ]
+    }
+  cmds[ 1] =
+    cmd_t {
+      tokens[ 0] = 'd'
+      tokens[ 1] = 'e'
+      tokens[ 2] = (null)
+      input_redirect = '(null)'
+      output_redirect = '(null)'
+      line_number = 0
+      cmd_flags = 0x00 [ -- -- -- ]
+    }
+  cmds[ 2] =
+    cmd_t {
+      tokens[ 0] = 'f'
+      tokens[ 1] = 'g'
+      tokens[ 2] = 'h'
+      tokens[ 3] = (null)
+      input_redirect = '(null)'
+      output_redirect = '(null)'
+      line_number = 0
+      cmd_flags = 0x00 [ -- -- -- ]
+    }
+}
+SECOND LOOKUP
+rule_t {
+  target = target2
+  deps[ 0] = 'dep2A'
+  deps[ 1] = 'dep2B'
+  deps[ 2] = 'dep2C'
+  deps[ 3] = 'dep2D'
+  deps[ 4] = (null)
+  rule_flags = 0x00 [ -- -- -- ]
+  cmd_count = 1
+  cmds[ 0] =
+    cmd_t {
+      tokens[ 0] = 'a'
+      tokens[ 1] = 'b'
+      tokens[ 2] = 'c'
+      tokens[ 3] = (null)
+      input_redirect = '(null)'
+      output_redirect = '(null)'
+      line_number = 0
+      cmd_flags = 0x00 [ -- -- -- ]
+    }
+}
+#+END_SRC
+
+* bake_target_rule2 
+#+TESTY: program="./test_bake_funcs12 bake_target_rule2"
+#+BEGIN_SRC sh
+IF_TEST("bake_target_rule2") { 
+    // Checks if a variety of targets are present/absent in a 
+    // Bakefile loaded from the test_data12/ directory
+    printf("BAKEFILE CONTENTS\n");
+    system("cat test_data12/Bakefile3");
+    bake_t *bake = bake_create_from_file("test_data12/Bakefile3"); 
+    char *targname;  
+    printf("\nCHECKING TARGETS\n");
+    targname = "all";
+    printf("CHECK %12s : %s\n",targname,
+           bake_target_rule(bake,targname)!=NULL?"FOUND":"NULL");
+    targname = "hello.o";
+    printf("CHECK %12s : %s\n",targname,
+           bake_target_rule(bake,targname)!=NULL?"FOUND":"NULL");
+    targname = "clean";
+    printf("CHECK %12s : %s\n",targname,
+           bake_target_rule(bake,targname)!=NULL?"FOUND":"NULL");
+    targname = "demo";
+    printf("CHECK %12s : %s\n",targname,
+           bake_target_rule(bake,targname)!=NULL?"FOUND":"NULL");
+    targname = "bye.o";
+    printf("CHECK %12s : %s\n",targname,
+           bake_target_rule(bake,targname)!=NULL?"FOUND":"NULL");
+    targname = "nada.c";
+    printf("CHECK %12s : %s\n",targname,
+           bake_target_rule(bake,targname)!=NULL?"FOUND":"NULL");
+    targname = "missing";
+    printf("CHECK %12s : %s\n",targname,
+           bake_target_rule(bake,targname)!=NULL?"FOUND":"NULL");
+    targname = "nowhere.txt";
+    printf("CHECK %12s : %s\n",targname,
+           bake_target_rule(bake,targname)!=NULL?"FOUND":"NULL");
+    bake_free(bake);
+}
+---OUTPUT---
+BAKEFILE CONTENTS
+# this is a leading comment
+
+# this target uses the program that is built
+# and runs it printing messages around it
+demo : hello bye
+	@ echo Running programs
+	./hello
+	./bye
+	@ echo Done running programs
+
+all : hello bye
+
+# this is program 1 / 2
+hello : hello.o
+	gcc -o hello hello.o
+
+hello.o : hello.c
+	gcc -c hello.c
+
+# this is program 2 / 2
+bye : bye.o
+	gcc -o bye bye.o
+
+bye.o : bye.c
+	gcc -c bye.c
+
+# this target removes built files
+clean :
+	rm -f hello.o bye.o hello bye
+
+CHECKING TARGETS
+CHECK          all : FOUND
+CHECK      hello.o : FOUND
+CHECK        clean : FOUND
+CHECK         demo : FOUND
+CHECK        bye.o : FOUND
+CHECK       nada.c : NULL
+CHECK      missing : NULL
+CHECK  nowhere.txt : NULL
+#+END_SRC
+
+* bake_target_rule_missing 
+#+TESTY: program="./test_bake_funcs12 bake_target_rule_missing"
+#+BEGIN_SRC sh
+IF_TEST("bake_target_rule_missing") { 
+    // checks that NULL is returned when a target is missing from all
+    // rules
+    rule_t rules[8] = {
+      { .target      = "target0",
+        .deps        = {"dep0A","dep0B","dep0C"},
+        .cmd_count   = 2,
+        .cmds        = {
+          { .tokens = {"a","b","c"} },
+          { .tokens = {"d","e"} },
+        }
+      },
+      { .target      = "target1",
+        .deps        = {"dep1A","dep1B"},
+        .cmd_count   = 3,
+        .cmds        = {
+          { .tokens = {"a","b","c"} },
+          { .tokens = {"d","e"} },
+          { .tokens = {"f","g","h"} },
+        }
+      },            
+      { .target      = "target2",
+        .deps        = {"dep2A","dep2B","dep2C","dep2D"},
+        .cmd_count   = 1,
+        .cmds        = {
+          { .tokens = {"a","b","c"} },
+        }
+      },            
+    };
+    bake_t bake = {
+      .filename      = "<none>",
+      .rule_capacity = 8,
+      .rule_count    = 3,
+      .rules         = rules,
+      .string_table  = NULL
+    };
+    rule_t *rule = bake_target_rule(&bake, "targetX");
+    if(rule == NULL){
+      printf("rule not found\n");
+    }
+    else{
+      bake_show_rule(rule,0);
+    }
+}
+---OUTPUT---
+rule not found
+#+END_SRC
+
+* bake_print_cmd_simple 
+#+TESTY: program="./test_bake_funcs12 bake_print_cmd_simple"
+#+BEGIN_SRC sh
+IF_TEST("bake_print_cmd_simple") { 
+    // Checks output of a very simple command without any special
+    // flags set.
+    cmd_t cmd = {
+      .tokens = {"gcc","-o","myprog","-g","prog_main.c"},
+      .input_redirect  = NULL,
+      .output_redirect = NULL,
+      .line_number = 32,
+      .cmd_flags = 0
+    };
+    bake_print_cmd(&cmd);
+}
+---OUTPUT---
+gcc -o myprog -g prog_main.c 
+#+END_SRC
+
+* bake_print_cmd_silence 
+#+TESTY: program="./test_bake_funcs12 bake_print_cmd_silence"
+#+BEGIN_SRC sh
+IF_TEST("bake_print_cmd_silence") { 
+    // Checks that when the SILENCE_BIT is set, no output is printed.
+    cmd_t cmd = {
+      .tokens = {"echo","Alas poor Yorick, I knew him, Horatio."},
+      .input_redirect  = NULL,
+      .output_redirect = NULL,
+      .line_number = 13,
+      .cmd_flags = CMD_SILENCE_BIT,
+    };
+    bake_print_cmd(&cmd);
+}
+---OUTPUT---
+IF_TEST("bake_print_cmd_silence") { 
+    // Checks that when the SILENCE_BIT is set, no output is printed.
+    cmd_t cmd = {
+      .tokens = {"echo","Alas poor Yorick, I knew him, Horatio."},
+      .input_redirect  = NULL,
+      .output_redirect = "hamlet.txt",
+      .line_number = 8,
+      .cmd_flags = CMD_SILENCE_BIT|CMD_OUTREDI_BIT,
+    };
+    bake_print_cmd(&cmd);
+}
+---OUTPUT---
+#+END_SRC
+
+* bake_print_cmd_io_redir 
+#+TESTY: program="./test_bake_funcs12 bake_print_cmd_io_redir"
+#+BEGIN_SRC sh
+IF_TEST("bake_print_cmd_io_redir") { 
+    // Checks output redirection detected and printed correctly when
+    // displaying commands
+    cmd_t cmd = {
+      .tokens = {"seq","10","5","50"},
+      .input_redirect  = NULL,
+      .output_redirect = "nums.txt",
+      .line_number = 31,
+      .cmd_flags = CMD_OUTREDI_BIT,
+    };
+    bake_print_cmd(&cmd);
+}
+---OUTPUT---
+seq 10 5 50 > nums.txt 
+IF_TEST("bake_print_cmd_io_redir") { 
+    // Checks input redirection detected and printed correctly when
+    // displaying commands
+    cmd_t cmd = {
+      .tokens = {"wc","-l"},
+      .input_redirect  = "essay.txt",
+      .output_redirect = NULL,
+      .line_number = 145,
+      .cmd_flags = CMD_INPREDI_BIT,
+    };
+    bake_print_cmd(&cmd);
+}
+---OUTPUT---
+wc -l < essay.txt 
+IF_TEST("bake_print_cmd_io_redir") { 
+    // Checks input/output redirection detected and printed correctly
+    // when displaying commands
+    cmd_t cmd = {
+      .tokens = {"tr","a-z","A-Z"},
+      .input_redirect  = "mixed.txt",
+      .output_redirect = "upper.txt",
+      .line_number = 259,
+      .cmd_flags = CMD_OUTREDI_BIT | CMD_INPREDI_BIT
+    };
+    bake_print_cmd(&cmd);
+}
+---OUTPUT---
+tr a-z A-Z < mixed.txt > upper.txt 
+#+END_SRC
+
