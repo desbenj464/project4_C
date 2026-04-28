@@ -1,0 +1,24 @@
+# X pattern with upper left and upper right files dependent on an
+# central X file whic his depdendent on 2 children branches of lower
+# left and lower right. The Lower Left branch cycles to the Upper
+# Right.
+
+fileUL.txt : fileX.txt
+	@ echo completed fileUL.txt
+
+fileUR.txt : fileX.txt
+	@ echo completed fileUR.txt
+
+fileX.txt : fileLL1.txt fileLR1.txt
+	@ echo completed fileX.txt
+
+fileLL1.txt : fileLL2.txt
+	@ echo completed fileLL1.txt
+
+fileLL2.txt : fileUR.txt
+	@ echo completed fileLL2.txt
+
+fileLR1.txt : fileLR2.txt
+	@ echo completed fileLR1.txt
+
+# fileLR2.txt is implicit
